@@ -1,8 +1,5 @@
 # Trabajo Final - Sistemas Empotrados con ESP32-S3
 
-![ESP32-S3](https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/esp32s3.png)
-*Montaje basado en ESP32-S3 con sensor DHT22 y control de LEDs vía web.*
-
 ## Descripción del Proyecto
 
 Este proyecto es el **Trabajo Final de Sistemas Empotrados**. Consiste en un montaje con **ESP32-S3** que:
@@ -24,7 +21,6 @@ El objetivo principal es demostrar cómo integrar hardware y software en un sist
 * [Instalación](#instalación)
 * [Uso](##uso)
 * [Capturas](#capturas)
-* [Licencia](#licencia)
 
 ---
 
@@ -95,6 +91,15 @@ git clone https://github.com/Pabl0t0rr/Trabajo_Final_Empotrados.git
 
 *(Incluye aquí imágenes del montaje y de la interfaz web)*
 
-![MontajePlaca](https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/montajePlaca.jpg)
-![Interfaz Web](https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/web_interface.png)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/montajePlaca.jpeg" width="500" />
+</div>
+
+*Montaje basado en ESP32-S3 con sensor DHT22 y control de LEDs vía web.*
+
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/primerBocetoWeb.png" width="500" />
+</div>
+*Primer boceto de la web para visualizar y controlar la placa.*
 
