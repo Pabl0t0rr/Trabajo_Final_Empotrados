@@ -4,6 +4,10 @@
 #include "DHT.h"
 #include "Ticker.h"
 
+//Ticker para manejar el DHT
+Ticker tickerDHT;
+Ticker tickerWiFi;
+
 // Pines
 #define Led_H 10
 #define Led_T 8
@@ -13,12 +17,54 @@
 // Sensor DHT
 #define DHTTYPE DHT22
 DHT dht(DHTPin, DHTTYPE);
+//Para poder acceder a ellos de forma global
+float temperatura = 0.0;
+float humedad = 0.0;
+
+float tempMax = 30.0;
+float humMax = 70.0;
 
 // Servidor HTTP
 WebServer server(80);
 
+//Funcion para consegurir los datos del DHT22
+void getDataDHT(){
+  temperatura = dht.readTemperature();
+  humedad = dht.readHumidity();
+
+  if (isnan(temperatura) || isnan(humedad)) {
+    Serial.println("⚠ Error leyendo el DHT22");
+  }
+  if(temperatura >=tempMax){
+    digitalWrite(Led_T, HIGH);
+  }else{
+    digitalWrite(Led_T, LOW);
+  }
+  if(humedad >= humMax){
+    digitalWrite(Led_H, HIGH);
+  }else{
+    digitalWrite(Led_H, LOW);
+  }
+  Serial.print("Temperatura: ");
+  Serial.print(temperatura);
+  Serial.println(" °C");
+
+  Serial.print("Humedad: ");
+  Serial.print(humedad);
+  Serial.println(" %");
+
+}
+
+void checkWiFi() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi desconectado. Reintentando conexión...");
+    WiFi.reconnect();
+  }
+}
+
+
 // Página web prueba
-String getPage(float humidity, float temperature) {
+String getPage(float h, float t) {
   String html = R"rawliteral(
   <!DOCTYPE html>
   <html lang="es">
@@ -58,7 +104,7 @@ String getPage(float humidity, float temperature) {
   <div class="card-label">Temperatura</div>
   <div class="card-value">)rawliteral";
     
-    html += String(temperature);
+    html += String(t);
     
     html += R"rawliteral(</div>
   <div class="card-unit">°C</div>
@@ -69,7 +115,7 @@ String getPage(float humidity, float temperature) {
   <div class="card-label">Humedad</div>
   <div class="card-value">)rawliteral";
     
-    html += String(humidity);
+    html += String(h);
     
     html += R"rawliteral(</div>
   <div class="card-unit">%</div>
@@ -88,21 +134,7 @@ String getPage(float humidity, float temperature) {
 }
 
 void handleRoot() {
-  float temp = dht.readTemperature();
-  float hum = dht.readHumidity();
-
-  if (isnan(temp) || isnan(hum)) {
-    Serial.println("⚠ Error leyendo el DHT22");
-  } else {
-    Serial.print("Temperatura: ");
-    Serial.print(temp);
-    Serial.println(" °C");
-
-    Serial.print("Humedad: ");
-    Serial.print(hum);
-    Serial.println(" %");
-  }
-  server.send(200, "text/html", getPage(hum, temp));
+  server.send(200, "text/html", getPage(humedad, temperatura));
 }
 
 void handleLedOn() {
@@ -112,42 +144,26 @@ void handleLedOn() {
 }
 
 void handleLedOff() {
-
   digitalWrite(Led_B, LOW);
   server.sendHeader("Location", "/"); // redirige a la página principal
   server.send(303);
 }
 
+//Para poder tratar los eventos wifi
 void wifiCallback(WiFiEvent_t event) {
   switch (event) {
-
     case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-      Serial.println("Conectado al punto de acceso.");
+      Serial.println("Conectado ");
+      Serial.println(WIFI_SSID);
       break;
-
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
       Serial.print("WiFi OK - IP asignada: ");
       Serial.println(WiFi.localIP());
       break;
-
     case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
       Serial.println("WiFi desconectado. Intentando reconectar...");
       WiFi.reconnect();
       break;
-
-    case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
-      Serial.println("Advertencia: Cambio en el modo de autenticación.");
-      break;
-
-    case ARDUINO_EVENT_WIFI_STA_LOST_IP:
-      Serial.println("Se perdió la IP. Intentando recuperar...");
-      WiFi.reconnect();
-      break;
-
-    case ARDUINO_EVENT_WIFI_STA_STOP:
-      Serial.println("WiFi parado.");
-      break;
-
     default:
       Serial.print("Evento WiFi desconocido: ");
       Serial.println(event);
@@ -169,13 +185,12 @@ void setup() {
 
   // DHT
   dht.begin();
-  delay(2000); //Necesario para que le de tiempo al sensor a iniciarse
+  tickerDHT.attach(1.0, getDataDHT); //Conseguir la info cad 1seg
 
   // WIFI
-  Serial.print("Conectando a ");
-  Serial.println(WIFI_SSID);
   WiFi.onEvent(wifiCallback);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  tickerWiFi.attach(5.0, checkWiFi); //Revisar que sigas teniendo conexion en mitad del programa
 
   // Rutas servidor web
   server.on("/", handleRoot);
