@@ -91,8 +91,6 @@ git clone https://github.com/Pabl0t0rr/Trabajo_Final_Empotrados.git
 
 ## Capturas
 
-*(Incluye aquí imágenes del montaje y de la interfaz web)*
-
 <div align="center">
   <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/montajePlaca.jpeg" width="500" />
 </div>
@@ -101,7 +99,8 @@ git clone https://github.com/Pabl0t0rr/Trabajo_Final_Empotrados.git
 
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/primerBocetoWeb.png" width="500" />
+  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/Interfaz_Final.png" width="500" />
 </div>
-*Primer boceto de la web para visualizar y controlar la placa.*
+*Interfaz web para visualizar y controlar la placa.*
+
 
