@@ -92,7 +92,7 @@ git clone https://github.com/Pabl0t0rr/Trabajo_Final_Empotrados.git
 ## Capturas
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/montajePlaca.jpeg" width="500" />
+  <img src="https://raw.githubusercontent.com/Pabl0t0rr/Trabajo_Final_Empotrados/main/assets/MontajePlacaFinal.jpeg" width="500" />
 </div>
 
 *Montaje basado en ESP32-S3 con sensor DHT22 y control de LEDs vía web.*
