@@ -62,10 +62,8 @@ void checkWiFi() {
   }
 }
 
-
 // Página web prueba
-String getPage(float h, float t) {
-  bool ledState = digitalRead(Led_B); // Leer estado actual del LED
+String getPage(float h, float t, bool ledState) {
 
   String btnLabel = ledState ? "Apagar LED" : "Encender LED";
   String btnClass = ledState ? "off" : "on";
@@ -149,9 +147,9 @@ String getPage(float h, float t) {
   return html;
 }
 
-
 void handleRoot() {
-  server.send(200, "text/html", getPage(humedad, temperatura));
+  bool estadoLed = digitalRead(Led_B);
+  server.send(200, "text/html", getPage(humedad, temperatura, estadoLed));
 }
 
 void handleLedOn() {
