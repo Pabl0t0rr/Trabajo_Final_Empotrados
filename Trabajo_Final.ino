@@ -33,7 +33,7 @@ void getDataDHT(){
   humedad = dht.readHumidity();
 
   if (isnan(temperatura) || isnan(humedad)) {
-    Serial.println("⚠ Error leyendo el DHT22");
+    Serial.println("Error leyendo el DHT22");
   }
   if(temperatura >=tempMax){
     digitalWrite(Led_T, HIGH);
@@ -45,14 +45,6 @@ void getDataDHT(){
   }else{
     digitalWrite(Led_H, LOW);
   }
-  Serial.print("Temperatura: ");
-  Serial.print(temperatura);
-  Serial.println(" °C");
-
-  Serial.print("Humedad: ");
-  Serial.print(humedad);
-  Serial.println(" %");
-
 }
 
 void checkWiFi() {
@@ -168,7 +160,7 @@ void handleLedOff() {
 void wifiCallback(WiFiEvent_t event) {
   switch (event) {
     case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-      Serial.print("Conectado ");
+      Serial.print("Conectado a ");
       Serial.println(WIFI_SSID);
       break;
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
@@ -205,7 +197,7 @@ void setup() {
   // WIFI
   WiFi.onEvent(wifiCallback);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  tickerWiFi.attach(5.0, checkWiFi); //Revisar que sigas teniendo conexion en mitad del programa
+  tickerWiFi.attach(5.0, checkWiFi); //Revisar que sigas teniendo conexion en mitad del programa cada 5seg
 
   // Rutas servidor web
   server.on("/", handleRoot);
