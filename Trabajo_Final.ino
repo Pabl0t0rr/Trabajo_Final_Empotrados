@@ -20,31 +20,75 @@ DHT dht(DHTPin, DHTTYPE);
 //Para poder acceder a ellos de forma global
 float temperatura = 0.0;
 float humedad = 0.0;
-
-float tempMax = 30.0;
-float humMax = 70.0;
+//Valores maximos pra que salten
+float tempMax = 24.0;
+float humMax = 90.0;
 
 // Servidor HTTP
 WebServer server(80);
 
-//Funcion para consegurir los datos del DHT22
-void getDataDHT(){
-  temperatura = dht.readTemperature();
-  humedad = dht.readHumidity();
+//Metricas OPCIONAL medinate latencias
+unsigned long lastRead = 0;
+unsigned long tiempoLedTEncendido = 0;
+unsigned long tiempoLedHEncendido = 0;
+int lecturasTotales = 0;
+int erroresDHT = 0;
+unsigned long lastServerTime = 0;
 
-  if (isnan(temperatura) || isnan(humedad)) {
-    Serial.println("Error leyendo el DHT22");
-  }
-  if(temperatura >=tempMax){
-    digitalWrite(Led_T, HIGH);
-  }else{
-    digitalWrite(Led_T, LOW);
-  }
-  if(humedad >= humMax){
-    digitalWrite(Led_H, HIGH);
-  }else{
-    digitalWrite(Led_H, LOW);
-  }
+//Funcion mostrar metricas obtenidas
+void printMetrics(unsigned long dtDHT, unsigned long latenciaDHTtoLED, unsigned long serverLatency) {
+    Serial.println("===== METRICAS =====");
+    Serial.print("Temperatura actual: "); Serial.println(temperatura);
+    Serial.print("Humedad actual: "); Serial.println(humedad);
+    Serial.print("Tiempo desde última lectura DHT (ms): "); Serial.println(dtDHT);
+    Serial.print("Latencia DHT→LED (ms): "); Serial.println(latenciaDHTtoLED);
+    Serial.print("Lecturas totales DHT: "); Serial.print(lecturasTotales);
+    Serial.print(" | Errores DHT: "); Serial.println(erroresDHT);
+    Serial.print("Tiempo total LED_T encendido (ms): "); Serial.println(tiempoLedTEncendido);
+    Serial.print("Tiempo total LED_H encendido (ms): "); Serial.println(tiempoLedHEncendido);
+    Serial.print("Latencia servidor web (ms): "); Serial.println(serverLatency);
+}
+
+//Funcion para consegurir los datos del DHT22
+void getDataDHT() {
+    unsigned long now = millis();
+    unsigned long dt = now - lastRead;
+    lastRead = now;
+    lecturasTotales++;
+
+    float t = dht.readTemperature();
+    float h = dht.readHumidity();
+
+    if (isnan(t) || isnan(h)) {
+        erroresDHT++;
+        Serial.println("Error leyendo el DHT22");
+    } else {
+        temperatura = t;
+        humedad = h;
+    }
+
+    // Latencia evento→acción
+    unsigned long t0 = millis();
+
+    // Control LEDs
+    if(temperatura >= tempMax){
+        digitalWrite(Led_T, HIGH);
+        tiempoLedTEncendido += dt;
+    } else {
+        digitalWrite(Led_T, LOW);
+    }
+
+    if(humedad >= humMax){
+        digitalWrite(Led_H, HIGH);
+        tiempoLedHEncendido += dt;
+    } else {
+        digitalWrite(Led_H, LOW);
+    }
+
+  unsigned long t1 = millis();
+  unsigned long latenciaDHTtoLED = t1 - t0;
+  // Imprimir métricas
+  printMetrics(dt, latenciaDHTtoLED, lastServerTime);
 }
 
 void checkWiFi() {
@@ -210,5 +254,8 @@ void setup() {
 }
 
 void loop() {
+  unsigned long t0 = millis();
   server.handleClient();
+  unsigned long t1 = millis();
+  lastServerTime = t1 - t0; // guardamos latencia para métricas
 }
